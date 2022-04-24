@@ -16,26 +16,44 @@ const supertest_1 = __importDefault(require("supertest"));
 const server_1 = __importDefault(require("../server"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const post_model_1 = __importDefault(require("../models/post_model"));
+const user_model_1 = __importDefault(require("../models/user_model"));
 const message = "this is my test message";
-const sender = "1234567890";
+let sender = "1234567890";
 let retId = "";
+const email = "test@a.com";
+const password = "1234567890";
+let accessToken = "";
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     //clear Posts collection
-    yield post_model_1.default.remove({ "sender": sender });
+    yield post_model_1.default.deleteMany({ sender: sender });
+    yield user_model_1.default.deleteMany({ email: email });
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-    // await Post.remove({"sender":sender})
+    yield post_model_1.default.deleteMany({ sender: sender });
+    yield user_model_1.default.deleteMany({ email: email });
     mongoose_1.default.connection.close();
 }));
 describe("This is Post API test", () => {
+    test("Test register to get access token", () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, supertest_1.default)(server_1.default)
+            .post("/auth/register")
+            .send({ email: email, password: password });
+        expect(response.statusCode).toEqual(200);
+        accessToken = response.body.access_token;
+        expect(accessToken).not.toBeNull();
+        sender = response.body._id;
+    }));
     test("Test Post get API", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post');
+        const response = yield (0, supertest_1.default)(server_1.default).get("/post");
         expect(response.statusCode).toEqual(200);
     }));
     test("Test Post post API", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).post('/post').send({
-            "message": message,
-            "sender": sender
+        const response = yield (0, supertest_1.default)(server_1.default)
+            .post("/post")
+            .set({ authorization: "barer " + accessToken })
+            .send({
+            message: message,
+            sender: sender,
         });
         expect(response.statusCode).toEqual(200);
         const retMessage = response.body.message;
@@ -46,7 +64,7 @@ describe("This is Post API test", () => {
         expect(retId).not.toEqual(null);
     }));
     test("Test get Post by id API", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post/' + retId);
+        const response = yield (0, supertest_1.default)(server_1.default).get("/post/" + retId);
         expect(response.statusCode).toEqual(200);
         const retMessage = response.body.message;
         const retSender = response.body.sender;
@@ -56,7 +74,7 @@ describe("This is Post API test", () => {
         expect(retId2).toEqual(retId);
     }));
     test("Test get Post by sender API", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).get('/post?sender=' + sender);
+        const response = yield (0, supertest_1.default)(server_1.default).get("/post?sender=" + sender);
         expect(response.statusCode).toEqual(200);
         const retMessage = response.body[0].message;
         const retSender = response.body[0].sender;
@@ -66,9 +84,11 @@ describe("This is Post API test", () => {
         expect(retId2).toEqual(retId);
     }));
     test("Test delete post by id API", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield (0, supertest_1.default)(server_1.default).delete('/post/' + retId);
+        const response = yield (0, supertest_1.default)(server_1.default)
+            .delete("/post/" + retId)
+            .set({ authorization: "barer " + accessToken });
         expect(response.statusCode).toEqual(200);
-        const response2 = yield (0, supertest_1.default)(server_1.default).get('/post/' + retId);
+        const response2 = yield (0, supertest_1.default)(server_1.default).get("/post/" + retId);
         expect(response2.statusCode).toEqual(400);
     }));
 });

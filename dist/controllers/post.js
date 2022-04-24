@@ -18,12 +18,12 @@ const post_model_1 = __importDefault(require("../models/post_model"));
  * @param {http response} res
  */
 const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('getAllPosts');
+    console.log("getAllPosts");
     try {
         const sender = req.query.sender;
         let posts;
         if (sender != null || sender != undefined) {
-            posts = yield post_model_1.default.find({ 'sender': sender });
+            posts = yield post_model_1.default.find({ sender: sender });
         }
         else {
             posts = yield post_model_1.default.find();
@@ -32,21 +32,21 @@ const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (err) {
         res.status(400).send({
-            'err': err.message
+            err: err.message,
         });
     }
 });
 const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('getPostById id=' + req.params.id);
+    console.log("getPostById id=" + req.params.id);
     const id = req.params.id;
     if (id == null || id == undefined) {
-        return res.status(400).send({ 'err': 'no id provided' });
+        return res.status(400).send({ err: "no id provided" });
     }
     try {
         const post = yield post_model_1.default.findById(id);
         if (post == null) {
             res.status(400).send({
-                'err': 'post doesnot exists'
+                err: "post doesnot exists",
             });
         }
         else {
@@ -55,7 +55,7 @@ const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (err) {
         res.status(400).send({
-            'err': err.message
+            err: err.message,
         });
     }
 });
@@ -66,9 +66,10 @@ const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
  */
 const createNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.body);
+    const sender = req.body._id;
     const post = new post_model_1.default({
         message: req.body.message,
-        sender: req.body.sender
+        sender: sender,
     });
     try {
         const newPost = yield post.save();
@@ -76,23 +77,23 @@ const createNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (err) {
         res.status(400).send({
-            'err': err.message
+            err: err.message,
         });
     }
 });
 const deletePostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('deletePostById id=' + req.params.id);
+    console.log("deletePostById id=" + req.params.id);
     const id = req.params.id;
     if (id == null || id == undefined) {
-        return res.status(400).send({ 'err': 'no id provided' });
+        return res.status(400).send({ err: "no id provided" });
     }
     try {
-        yield post_model_1.default.deleteOne({ "_id": id });
+        yield post_model_1.default.deleteOne({ _id: id });
         res.status(200).send();
     }
     catch (err) {
         res.status(400).send({
-            'err': err.message
+            err: err.message,
         });
     }
 });
@@ -100,6 +101,6 @@ module.exports = {
     getAllPosts,
     createNewPost,
     getPostById,
-    deletePostById
+    deletePostById,
 };
 //# sourceMappingURL=post.js.map
