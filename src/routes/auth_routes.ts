@@ -160,6 +160,40 @@ import authenticate from "../common/auth_middleware";
   *
   */
  router.get("/test", authenticate, Auth.test);
+  /**
+  * @swagger
+  * /auth/logout:
+  *   post:
+  *     summary: logout user
+  *     tags: [Auth]
+  *     requestBody:
+  *       required: true
+  *       content:
+  *         application/json:
+  *           schema:
+  *             $ref: '#/components/schemas/User'
+  *     responses:
+  *       200:
+  *         description: login success retuns access and refresh tokens will be 0 to say that he was log out because no server for now
+  *         content:
+  *           application/json:
+  *             schema:
+  *               access_token:
+  *                 type: string
+  *                 description: The refresh Token
+  *               refresh_token:
+  *                 type: string
+  *                 description: The refresh Token
+  *               _id:
+  *                 type: string
+  *                 description: The user id
+  *             example:
+  *               access_token: '12341234...'
+  *               refresh_token: '0'
+  *               _id: "adfasdfasdfasdfsd"
+  *
+  */
+   router.post("/logout", Auth.logout);
  router.get("/test2", Auth.test);
  
  export = router;

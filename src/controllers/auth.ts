@@ -171,10 +171,60 @@ const renewToken = async (req: Request, res: Response) => {
 const test = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).send({});
 };
+/**
+ * logout
+ * @param {http req} req
+ * @param {http res} res
+ */
+ const logout = async (req: Request, res: Response) => {
+  console.log("logout");
+  const email = req.body.email;
+  const password = req.body.password;
+  if (email == null || password == null) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .send({ error: "wrong email or password" });
+  }
+
+  try {
+    // check password match
+    const user = await User.findOne({ email: email });
+    if (user == null) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ error: "wrong email or password" });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send({ error: "wrong email or password" });
+    }
+
+    //calc accesstoken
+    const accessToken = await jwt.sign(
+      { _id: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: process.env.TOKEN_EXPIRATION }
+    );
+    const refreshToken = "0"
+    user.refreshToken = refreshToken;
+    await user.save();
+    res.status(StatusCodes.OK).send({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      _id: user._id,
+    });
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).send({ error: err.message });
+  }
+};
 
 export = {
   register,
   login,
   renewToken,
   test,
+  logout,
 };

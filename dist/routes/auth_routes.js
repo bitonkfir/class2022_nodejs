@@ -154,6 +154,40 @@ router.get("/refresh", auth_1.default.renewToken);
  *
  */
 router.get("/test", auth_middleware_1.default, auth_1.default.test);
+/**
+* @swagger
+* /auth/logout:
+*   post:
+*     summary: logout user
+*     tags: [Auth]
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             $ref: '#/components/schemas/User'
+*     responses:
+*       200:
+*         description: login success retuns access and refresh tokens will be 0 cause no server for now
+*         content:
+*           application/json:
+*             schema:
+*               access_token:
+*                 type: string
+*                 description: The refresh Token
+*               refresh_token:
+*                 type: string
+*                 description: The refresh Token
+*               _id:
+*                 type: string
+*                 description: The user id
+*             example:
+*               access_token: '12341234...'
+*               refresh_token: '0'
+*               _id: "adfasdfasdfasdfsd"
+*
+*/
+router.post("/logout", auth_1.default.logout);
 router.get("/test2", auth_1.default.test);
 module.exports = router;
 //# sourceMappingURL=auth_routes.js.map

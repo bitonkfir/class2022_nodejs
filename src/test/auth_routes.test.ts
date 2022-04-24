@@ -106,5 +106,21 @@ describe("This is Auth API test", () => {
       .set({ authorization: "barer " + accessToken });
     expect(response.statusCode).toEqual(200);
   });
+  test("Test logout API", async () => {
+    let response = await request(app)
+      .post("/auth/logout")
+      .send({ email: email, password: password });
+    expect(response.statusCode).toEqual(200);
+
+    accessToken = response.body.access_token;
+    refreshToken = response.body.refresh_token;
+    expect(accessToken).not.toBeNull();
+    expect(refreshToken).toEqual("0");
+  
+    response = await request(app)
+      .get("/auth/test")
+      .set({ authorization: "barer " + accessToken });
+    expect(response.statusCode).toEqual(200);
+  });
 });
 

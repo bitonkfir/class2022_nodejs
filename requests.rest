@@ -41,3 +41,16 @@ Content-Type: application/json
 ###
 
 GET http://localhost:3000/auth/test2
+
+
+###
+
+POST http://localhost:3000/auth/logout
+Content-Type: application/json
+
+{
+    "email" : "pooppo@t.com",
+    "password" : "2282222"
+}
+
+###

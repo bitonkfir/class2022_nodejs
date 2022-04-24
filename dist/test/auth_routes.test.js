@@ -101,5 +101,19 @@ describe("This is Auth API test", () => {
             .set({ authorization: "barer " + accessToken });
         expect(response.statusCode).toEqual(200);
     }));
+    test("Test logout API", () => __awaiter(void 0, void 0, void 0, function* () {
+        let response = yield (0, supertest_1.default)(server_1.default)
+            .post("/auth/logout")
+            .send({ email: email, password: password });
+        expect(response.statusCode).toEqual(200);
+        accessToken = response.body.access_token;
+        refreshToken = response.body.refresh_token;
+        expect(accessToken).not.toBeNull();
+        expect(refreshToken).toEqual("0");
+        response = yield (0, supertest_1.default)(server_1.default)
+            .get("/auth/test")
+            .set({ authorization: "barer " + accessToken });
+        expect(response.statusCode).toEqual(200);
+    }));
 });
 //# sourceMappingURL=auth_routes.test.js.map

@@ -149,10 +149,54 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 const test = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(http_status_codes_1.StatusCodes.OK).send({});
 });
+/**
+ * logout
+ * @param {http req} req
+ * @param {http res} res
+ */
+const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("logout");
+    const email = req.body.email;
+    const password = req.body.password;
+    if (email == null || password == null) {
+        return res
+            .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
+            .send({ error: "wrong email or password" });
+    }
+    try {
+        // check password match
+        const user = yield user_model_1.default.findOne({ email: email });
+        if (user == null) {
+            return res
+                .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
+                .send({ error: "wrong email or password" });
+        }
+        const match = yield bcrypt_1.default.compare(password, user.password);
+        if (!match) {
+            return res
+                .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
+                .send({ error: "wrong email or password" });
+        }
+        //calc accesstoken
+        const accessToken = yield jsonwebtoken_1.default.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.TOKEN_EXPIRATION });
+        const refreshToken = "0";
+        user.refreshToken = refreshToken;
+        yield user.save();
+        res.status(http_status_codes_1.StatusCodes.OK).send({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            _id: user._id,
+        });
+    }
+    catch (err) {
+        return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({ error: err.message });
+    }
+});
 module.exports = {
     register,
     login,
     renewToken,
     test,
+    logout,
 };
 //# sourceMappingURL=auth.js.map
